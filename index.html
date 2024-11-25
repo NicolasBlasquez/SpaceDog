@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="src/assets/sprites/favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Retro videogame">
+  <title>Space Dog</title>
+
+  <style>
+    @font-face {
+      font-family: pixelFont;
+      src: url("src/assets/pixelFont.ttf");
+    }
+
+    html {
+      background-color: black;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      cursor: url("src/assets/sprites/cursor_default.png"), auto;
+    }
+
+    #root {
+      display: none;
+    }
+
+    @media (max-aspect-ratio: 16/9) {
+      body {
+        width: 100%;
+      }
+
+      canvas {
+        width: 100%;
+      }
+    }
+
+    @media (min-aspect-ratio: 16/9) {
+      body {
+        height: 100%;
+      }
+      canvas {
+        height: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <canvas></canvas>
+  <script type="module" src="/src/main.jsx"></script>
+  <script src="src/scripts/assets.js"></script>
+  <script src="src/scripts/functions.js"></script>
+  <script src="src/scripts/engine.js"></script>
+  <script src="src/scripts/classes.js"></script>
+  <script src="src/scripts/config.js"></script>
+</body>
+
+</html>
