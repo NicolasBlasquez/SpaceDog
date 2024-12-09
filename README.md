@@ -1,8 +1,15 @@
-# React + Vite
+![Logo](/src/assets/sprites/title_main.png)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This game is currently in its alpha development stage. As such, it is in an early phase of testing and may be unstable and have bugs.
 
-Currently, two official plugins are available:
+Your feedback is essential for the development process, any comment will be appreciated.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Roadmap
+
+- New biomes and enemies
+  
+- Achievements and records
+  
+- Difficulty levels
+
+- New music and textures

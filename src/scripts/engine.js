@@ -98,6 +98,8 @@ class Engine {
         for (let i = 0; i < this.entities.length; i++) {
             this.entities[i].start();
         }
+
+        this.biomes[this.currentBiome].start();
     }
 
     sortEntities() {

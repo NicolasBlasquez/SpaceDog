@@ -1,17 +1,21 @@
 "use strict"
 
 const PROPS = {
-    Planets: new Entity({
-        name: "planets",
-        sprites: [ASSETS.sprites.planets[0], ASSETS.sprites.planets[1]],
+    BackgroundProps: new Entity({
+        name: "background_props",
+        sprites: ASSETS.sprites.terrestialPlanets,
         layer: 2,
         start() {
             this.currentSprite = randomBetween(0, this.sprites.length - 1);
-            this.randomSizeFactor = randomBetween(0.5, 1.5, false);
-            this.transform.height = SpaceDog.canvas.height / 9 * this.randomSizeFactor;
+            this.randomSizeFactor = randomBetween(1, 1.6, false);
+            this.transform.height = SpaceDog.canvas.height / 8 * this.randomSizeFactor;
             this.transform.width = this.transform.height * this.sprites[this.currentSprite].naturalWidth / this.sprites[this.currentSprite].naturalHeight;
+            if (this.sprites[this.currentSprite] == ASSETS.sprites.terrestialPlanets[0] || this.sprites[this.currentSprite] == ASSETS.sprites.gasGiants[0]) {
+                this.transform.y = SpaceDog.canvas.height - this.transform.height / 2;
+            } else {
+                this.transform.y = randomBetween(50 + this.transform.height, SpaceDog.canvas.height - 50);
+            }
             this.transform.x = SpaceDog.canvas.width + this.transform.width + 10 + randomBetween(0, 150);
-            this.transform.y = randomBetween(50 + this.transform.height, SpaceDog.canvas.height - 50);
         },
         update() {
             this.transform.x -= 0.5 * SpaceDog.deltaTime * SpaceDog.resolutionFactor;
@@ -53,14 +57,16 @@ const Dog = new Entity({
     particleTimelapse: 0,
     spawnInmunity: false,
     skin: CONFIG.skinId,
+    kilometersCount: 0,
     sprites: ASSETS.sprites.skins[CONFIG.skinId],
     update() {
         if (SpaceDog.currentView == 0) {
             this.transform.y += this.transform.speed[1] * SpaceDog.deltaTime * SpaceDog.resolutionFactor;
-            console.log(this.transform.speed[1], SpaceDog.deltaTime);
             this.transform.speed[1] += 0.195 * SpaceDog.deltaTime;
             this.transform.angularMomentum += 0.05 * SpaceDog.deltaTime;;
             this.particleTimelapse += 1 * SpaceDog.deltaTime;
+
+            this.kilometersCount += 0.0111 * SpaceDog.deltaTime;
 
             // Límites
 
@@ -166,7 +172,7 @@ const UI_ELEMENTS = {
         }),
         Settings: new UIelement({
             name: "title_settings",
-            sprites: ASSETS.uiElements.title_settings,
+            sprites: ASSETS.uiElements.titleSettings,
             start() {
                 this.transform.height = SpaceDog.canvas.height / 10;
                 this.transform.width = this.transform.height / 15 * 69;
@@ -349,6 +355,7 @@ const UI_ELEMENTS = {
                 this.transform.y = SpaceDog.canvas.height / 1.5;
                 this.transform.width = size;
                 this.transform.height = size / 94 * 31;
+                Dog.kilometersCount = 0;
             },
             update() {
                 this.hidden = SpaceDog.currentView == 1 ? false : true;
@@ -357,7 +364,6 @@ const UI_ELEMENTS = {
                         this.brightness = CONFIG.uiBrightnessChange;
                     } else this.brightness = 1;
                 }
-
             },
             onClick() {
                 if (!this.blinkingInterval) {
@@ -506,9 +512,9 @@ const BIOMES = [
     new Biome({
         name: `asteroid_belt`,
         backdrop: createGradient(SpaceDog.context, SpaceDog.canvas.height, "#041542", "#020a1d"),
-        monsterSpawnInterval: randomBetween(240, 1500, false),
+        monsterSpawnInterval: randomBetween(120, 750, false),
         monsterSpawnTimelapse: 0,
-        asteroidSpawnInterval: randomBetween(120, 250, false),
+        asteroidSpawnInterval: randomBetween(60, 100, false),
         asteroidSpawnTimelapse: 0,
         shooting: false,
         entitiesParams: [
@@ -635,6 +641,165 @@ const BIOMES = [
                 },
             },
         ],
+        start() {
+            PROPS.BackgroundProps.sprites = ASSETS.sprites.terrestialPlanets;
+            PROPS.BackgroundProps.start();
+        },
+        update() {
+            if (SpaceDog.gameStarted) {
+                this.monsterSpawnTimelapse += 1 * SpaceDog.deltaTime;
+                if (this.monsterSpawnTimelapse >= this.monsterSpawnInterval) {
+                    this.monsterSpawnTimelapse = 0;
+                    let entity = new Entity(this.entitiesParams[0]);
+                    entity.start();
+                    this.monsterSpawnInterval = randomBetween(120, 750, false);
+                }
+                this.asteroidSpawnTimelapse += 1 * SpaceDog.deltaTime;
+                if (this.asteroidSpawnTimelapse >= this.asteroidSpawnInterval) {
+                    this.asteroidSpawnTimelapse = 0;
+                    let entity = new Entity(this.entitiesParams[1]);
+                    entity.start();
+                    this.asteroidSpawnInterval = randomBetween(60, 100, false);
+                }
+            }
+        },
+    }),
+    new Biome({
+        name: `gas_giants`,
+        backdrop: createGradient(SpaceDog.context, SpaceDog.canvas.height, "#162129", "#050505"),
+        monsterSpawnInterval: randomBetween(240, 1500, false),
+        monsterSpawnTimelapse: 0,
+        asteroidSpawnInterval: randomBetween(20, 60, false),
+        asteroidSpawnTimelapse: 0,
+        shooting: false,
+        entitiesParams: [
+            {
+                name: "mostro",
+                sprites: ASSETS.sprites.enemies.monsterIdle,
+                currentSprite: 0,
+                animationInterval: 14,
+                animationTime: 0,
+                layer: 4,
+                start() {
+                    this.transform.width = SpaceDog.canvas.height / 6;
+                    this.transform.height = this.transform.width;
+                    this.transform.y = randomBetween(this.transform.height / 3 + this.transform.height, SpaceDog.canvas.height - this.transform.height / 3, false);
+                    this.transform.x = SpaceDog.canvas.width + this.transform.width / 2;
+                },
+                update() {
+                    this.animationTime += SpaceDog.deltaTime;
+                    if (this.animationTime >= this.animationInterval) {
+                        this.animationTime = 0;
+                        this.currentSprite = (this.currentSprite + 1) % this.sprites.length;
+                        if (this.shooting) {
+
+                            if (!this.proyectile && this.currentSprite == this.sprites.length - 2) {
+                                let monster = this;
+                                let proyectile = new Entity({
+                                    name: `monster_proyectile`,
+                                    layer: 3,
+                                    speed: 5,
+                                    animationInterval: 12,
+                                    animationTime: 0,
+                                    sprites: ASSETS.sprites.proyectiles.monster,
+                                    start() {
+                                        this.transform.x = monster.transform.x;
+                                        this.transform.y = monster.transform.y;
+                                        this.transform.width = monster.transform.width / 2;
+                                        this.transform.height = monster.transform.height / 2;
+                                        this.transform.rotation = monster.transform.rotation;
+
+                                        ASSETS.audio.effects[3].currentTime = 0;
+                                        ASSETS.audio.effects[3].play();
+                                    },
+                                    update() {
+                                        this.animationTime += SpaceDog.deltaTime;
+                                        if (this.animationTime >= this.animationInterval) {
+                                            this.animationTime = 0;
+                                            this.currentSprite = (this.currentSprite + 1) % this.sprites.length;
+                                        }
+                                        this.transform.x -= (Math.cos(degToRad(this.transform.rotation)) * this.speed + 3) * SpaceDog.deltaTime * SpaceDog.resolutionFactor;
+                                        this.transform.y -= (Math.sin(degToRad(this.transform.rotation)) * this.speed) * SpaceDog.deltaTime * SpaceDog.resolutionFactor;
+                                        if (this.transform.x < this.transform.width * -1) {
+                                            SpaceDog.deleteEntity(this);
+                                        }
+
+                                        let distanceX = this.transform.x - Dog.transform.x;
+                                        let distanceY = this.transform.y - Dog.transform.y;
+
+                                        let distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+                                        if (distance < (Dog.transform.height / 2 + this.transform.height / 2)) {
+                                            SpaceDog.gameOver();
+                                        }
+                                    },
+                                });
+                                monster.proyectile = proyectile;
+                                proyectile.start();
+                            } else if (this.currentSprite == this.sprites.length - 1) {
+                                this.sprites = ASSETS.sprites.enemies.monsterIdle;
+                                this.currentSprite = 0;
+                                this.shooting = false;
+                            }
+                        }
+
+                    }
+
+                    this.transform.x -= 3 * SpaceDog.deltaTime * SpaceDog.resolutionFactor;;
+
+                    if (!SpaceDog.gameStarted) return;
+
+                    let distanceX = this.transform.x - Dog.transform.x;
+                    let distanceY = this.transform.y - Dog.transform.y;
+
+                    if (distanceX < 0) this.flipped = true;
+
+                    if (!this.proyectile && this.transform.x < Dog.transform.x + SpaceDog.canvas.width / 2) {
+                        this.sprites = ASSETS.sprites.enemies.monsterShooting;
+                        if (!this.shooting) {
+                            ASSETS.audio.effects[2].currentTime = 0;
+                            ASSETS.audio.effects[2].play();
+                        }
+                        this.shooting = true;
+                    }
+
+                    this.transform.rotation = radToDeg(Math.atan(distanceY / distanceX)) * (this.flipped ? -1 : 1);
+                    let distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+                    if (distance < (Dog.transform.height / 2 + this.transform.height / 2)) {
+                        SpaceDog.gameOver();
+                    }
+                },
+            },
+            {
+                name: "asteroid",
+                sprites: ASSETS.sprites.asteroids.green,
+                layer: 5,
+                start() {
+                    this.linearSpeed = randomBetween(3, 5, false);
+                    this.rotationSpeed = randomBetween(-2.5, 2.5, false);
+                    this.currentSprite = randomBetween(1, 3, true) == 1 ? 1 : 0;
+                    this.transform.width = SpaceDog.canvas.height / 7 * (this.sprites[this.currentSprite].naturalHeight / 20) * randomBetween(0.8, 1.2, false);
+                    this.transform.height = this.transform.width * this.sprites[this.currentSprite].naturalHeight / this.sprites[this.currentSprite].naturalWidth;
+                    this.transform.y = randomBetween(this.transform.height / 2 + this.transform.height, SpaceDog.canvas.height - this.transform.height / 2, false);
+                    this.transform.x = SpaceDog.canvas.width + this.transform.width / 2;
+                },
+                update() {
+                    this.transform.x -= this.linearSpeed * SpaceDog.deltaTime * SpaceDog.resolutionFactor;
+                    this.transform.rotation -= this.rotationSpeed * SpaceDog.deltaTime;
+
+                    let distanceX = this.transform.x - Dog.transform.x;
+                    let distanceY = this.transform.y - Dog.transform.y;
+
+                    let distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+                    if (distance < this.transform.height) {
+                        SpaceDog.gameOver();
+                    }
+                },
+            },
+        ],
+        start() {
+            PROPS.BackgroundProps.sprites = [...ASSETS.sprites.gasGiants, ...ASSETS.sprites.iceGiants];
+            PROPS.BackgroundProps.start();
+        },
         update() {
             if (SpaceDog.gameStarted) {
                 this.monsterSpawnTimelapse += 1 * SpaceDog.deltaTime;
@@ -653,10 +818,6 @@ const BIOMES = [
                 }
             }
         },
-    }),
-    new Biome({
-        name: `gas_giants`,
-        backdrop: createGradient(SpaceDog.context, SpaceDog.canvas.height, "#162129", "#050505"),
     }),
 ]
 
