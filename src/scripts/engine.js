@@ -47,7 +47,7 @@ class Engine {
          * 1: Main menu
          * 2: Config menu
          */
-        this.currentView = 2;
+        this.currentView = 1;
         this.update = this.update.bind(this);
     }
 
