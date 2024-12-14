@@ -63,9 +63,9 @@ const Dog = new Entity({
         if (SpaceDog.currentView == 0) {
             this.transform.y += this.transform.speed[1] * SpaceDog.deltaTime * SpaceDog.resolutionFactor;
             this.transform.speed[1] += 0.195 * SpaceDog.deltaTime;
-            this.transform.angularMomentum += 0.05 * SpaceDog.deltaTime;;
+            this.transform.rotation /= 1 + 0.05 * SpaceDog.deltaTime;
             this.particleTimelapse += 1 * SpaceDog.deltaTime;
-
+            
             this.kilometersCount += 0.0111 * SpaceDog.deltaTime;
 
             // Límites
@@ -80,12 +80,6 @@ const Dog = new Entity({
             } else if (this.transform.y < 0) {
                 this.transform.y = 0;
                 this.transform.speed[1] = 0
-            }
-
-            if (this.transform.angularMomentum > 2) {
-                this.transform.angularMomentum = 2;
-            } else if (this.transform.angularMomentum < -2) {
-                this.transform.angularMomentum = -2;
             }
 
             // Partículas
@@ -190,7 +184,8 @@ const UI_ELEMENTS = {
             layer: 64,
             start() {
                 this.transform.height = SpaceDog.canvas.height / 120;
-                this.transform.y = this.transform.height * 6
+                this.transform.y = this.transform.height * 6;
+                this.transform.x = SpaceDog.canvas.height / 14.4;
             },
             render() {
                 if (CONFIG.showFPScounter) {
@@ -198,7 +193,25 @@ const UI_ELEMENTS = {
                     SpaceDog.context.fillStyle = "white";
                     SpaceDog.context.textAlign = "center";
                     SpaceDog.context.font = `${this.transform.height * 2}px 'pixelFont'`;
-                    SpaceDog.context.fillText(`${FPS.currentFPS} FPS`, SpaceDog.canvas.height / 12 / 1.2, this.transform.y);
+                    SpaceDog.context.fillText(`${FPS.currentFPS} FPS`, this.transform.x, this.transform.y);
+                    SpaceDog.context.restore();
+                }
+            },
+        }),
+        VersionDisplay: new Entity({
+            name: "version_display",
+            layer: 64,
+            start() {
+                this.transform.height = SpaceDog.canvas.height / 120;
+                this.transform.y = this.transform.height * 6
+            },
+            render() {
+                if (CONFIG.showFPScounter) {
+                    SpaceDog.context.save();
+                    SpaceDog.context.fillStyle = "white";
+                    SpaceDog.context.textAlign = "right";
+                    SpaceDog.context.font = `${this.transform.height * 2}px 'pixelFont'`;
+                    SpaceDog.context.fillText(`${GAME_VERSION}`, SpaceDog.canvas.width - this.transform.y / 2, this.transform.y);
                     SpaceDog.context.restore();
                 }
             },
@@ -609,7 +622,7 @@ const BIOMES = [
 
                     this.transform.rotation = radToDeg(Math.atan(distanceY / distanceX)) * (this.flipped ? -1 : 1);
                     let distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
-                    if (distance < (Dog.transform.height / 2 + this.transform.height / 2)) {
+                    if (distance < (Dog.transform.height / 2 + this.transform.height / 3)) {
                         SpaceDog.gameOver();
                     }
                 },
@@ -635,7 +648,7 @@ const BIOMES = [
                     let distanceY = this.transform.y - Dog.transform.y;
 
                     let distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
-                    if (distance < this.transform.height) {
+                    if (distance < Dog.transform.height / 2 + this.transform.height / 3) {
                         SpaceDog.gameOver();
                     }
                 },

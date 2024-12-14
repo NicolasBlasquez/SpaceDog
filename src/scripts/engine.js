@@ -1,5 +1,7 @@
 "use strict"
 
+const GAME_VERSION = "Alpha 0.1.1";
+
 const CONFIG = {
     resolution: {
         displayText: "1280x720",
